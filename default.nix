@@ -30,7 +30,7 @@ let deps = {
       # haskell.nix provides access to the nixpkgs pins which are used by our CI,
       # hence you will be more likely to get cache hits when using these.
       # But you can also just use your own, e.g. '<nixpkgs>'.
-      haskellNix.sources.nixpkgs-unstable
+      haskellNix.sources.nixpkgs-2405
       # These arguments passed to nixpkgs, include some patches and also
       # the haskell.nix functionality itself as an overlay.
       haskellNix.nixpkgsArgs;
@@ -63,9 +63,12 @@ let deps = {
           lines = pkgs.lib.strings.splitString "\n" content;
       in pkgs.lib.strings.concatStringsSep "\n" (
           pkgs.lib.lists.forEach lines (line:
-            if pkgs.lib.strings.hasPrefix "import: " line
-            then import-cabal-project dir (pkgs.lib.strings.removePrefix "import: " line)
-            else line
+            if pkgs.lib.strings.hasPrefix "if !arch(javascript)" line
+              then "if false"
+              else
+                if pkgs.lib.strings.hasPrefix "import: " line
+                then import-cabal-project dir (pkgs.lib.strings.removePrefix "import: " line)
+                else line
           )
       );
 
